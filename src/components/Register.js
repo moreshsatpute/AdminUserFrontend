@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -9,26 +11,19 @@ const Register = () => {
     password: "",
     role: "user", // Default role is user
   });
-  const [message, setMessage] = useState("");
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
-  // Handle input changes
   const handleChange = (e) => {
     const { id, value } = e.target;
-    console.log(`Input Change - ${id}:`, value); // Log changes to inputs
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
   const handleRoleChange = (e) => {
-    console.log("Role Change:", e.target.value); // Log role change
     setFormData((prevData) => ({ ...prevData, role: e.target.value }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Submitted with Data:", formData); // Log full form data
-
     try {
       const response = await axios.post("http://localhost:5000/api/users/register", {
         name: formData.username,
@@ -36,14 +31,12 @@ const Register = () => {
         password: formData.password,
         role: formData.role,
       });
-      console.log("API Response:", response.data); // Log API response
-      setMessage("Registration successful! Redirecting to login...");
+      toast.success("Registration successful! Redirecting to login...");
       setTimeout(() => {
-        navigate("/"); // Redirect to login page after a delay
-      }, 2000); // 2-second delay for user to see the success message
+        navigate("/"); // Redirect after a delay
+      }, 1000);
     } catch (error) {
-      console.error("API Error:", error); // Log error details
-      setMessage(
+      toast.error(
         error.response?.data?.message || "An error occurred during registration."
       );
     }
@@ -120,9 +113,9 @@ const Register = () => {
               Login here
             </Link>
           </p>
-          {message && <p className="text-center text-danger mt-2">{message}</p>}
         </form>
       </div>
+      <ToastContainer />
     </div>
   );
 };

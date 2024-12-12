@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
     email: "",
     password: "",
   });
-  const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -14,33 +15,30 @@ const Login = () => {
 
     try {
       const response = await fetch("http://localhost:5000/api/users/login", {
-        method: "POST", // Specify the method
+        method: "POST",
         headers: {
-          "Content-Type": "application/json", // Inform server of the content type
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(credentials), // Send credentials in the body
+        body: JSON.stringify(credentials),
       });
 
       const data = await response.json();
-      console.log("Response Data:", data);
 
       if (response.ok) {
-        // Save token to localStorage
         localStorage.setItem("token", data.token);
-        // Navigate based on role
-        if (data.role === "admin") {
-          navigate("/admin"); // Navigate to admin page if role is admin
-        } else {
-          navigate("/user"); // Navigate to user page if role is user
-        }
+        toast.success("Login successful! Redirecting...");
+        setTimeout(() => {
+          if (data.role === "admin") {
+            navigate("/admin");
+          } else {
+            navigate("/user");
+          }
+        }, 2000);
       } else {
-        // Handle login error
-        setMessage(data.message || "Invalid email or password");
-        console.log("Login failed:", data.message);
+        toast.error(data.message || "Invalid email or password");
       }
     } catch (error) {
-      // Handle network or other errors
-      setMessage("An error occurred during login");
+      toast.error("An error occurred during login");
       console.error("Error:", error);
     }
   };
@@ -96,9 +94,9 @@ const Login = () => {
               </a>
             </p>
           </div>
-          {message && <p className="text-danger text-center mt-2">{message}</p>}
         </form>
       </div>
+      <ToastContainer />
     </div>
   );
 };
